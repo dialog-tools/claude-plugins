@@ -1,0 +1,7 @@
+{
+  "name": "dialog-tools",
+  "owner": { "name": "Dialog" },
+  "plugins": [
+    { "name": "dialog-workflow", "source": "./plugins/dialog-workflow", "description": "Dialog team workflow commands, safety hooks, and skills" }
+  ]
+}
