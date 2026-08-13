@@ -1,6 +1,6 @@
 {
   "name": "dialog-workflow",
-  "description": "Dialog team workflow: ship/stage PR flow, CI babysitting, prod log triage, safety hooks, worktree + Composio skills",
-  "version": "0.1.0",
+  "description": "Dialog team workflow: ship/stage PR flow, CI babysitting, prod log triage, safety hooks, worktree + Composio + design-system-v2 skills",
+  "version": "0.2.0",
   "author": { "name": "Chris Ivester" }
 }

@@ -380,17 +380,17 @@ The script handles:
 
 ## Advanced Topics
 
-For detailed information on advanced scenarios, see the `references/` directory:
+For detailed information on advanced scenarios, load the matching reference:
 
-- **`advanced-operations.md`** - Move, lock, repair worktrees; worktree internals
-- **`workflows.md`** - Complete workflow templates for common scenarios
-- **`troubleshooting.md`** - Common issues and solutions
-- **`integrations.md`** - VS Code, IDEs, CI/CD, Docker integration
-- **`performance.md`** - Optimization tips and disk space management
-- **`automation.md`** - Bash functions, aliases, and scripts
-- **`platform-guide.md`** - Windows, macOS, Linux-specific considerations
-- **`migration-guide.md`** - Migrating from multiple clones or stash workflows
-- **`examples.md`** - Real-world usage examples
+- [references/advanced-operations.md](references/advanced-operations.md) - Move, lock, repair worktrees; worktree internals
+- [references/workflows.md](references/workflows.md) - Complete workflow templates for common scenarios
+- [references/troubleshooting.md](references/troubleshooting.md) - Common issues and solutions
+- [references/integrations.md](references/integrations.md) - VS Code, IDEs, CI/CD, Docker integration
+- [references/performance.md](references/performance.md) - Optimization tips and disk space management
+- [references/automation.md](references/automation.md) - Bash functions, aliases, and scripts
+- [references/platform-guide.md](references/platform-guide.md) - Windows, macOS, Linux-specific considerations
+- [references/migration-guide.md](references/migration-guide.md) - Migrating from multiple clones or stash workflows
+- [references/examples.md](references/examples.md) - Real-world usage examples
 
 ## Resources
 

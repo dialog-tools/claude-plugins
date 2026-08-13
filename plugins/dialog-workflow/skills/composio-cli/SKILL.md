@@ -172,3 +172,5 @@ composio login    # authenticate if whoami fails
 If the user is stuck on top-level commands or needs fallback inspection commands, load [references/troubleshooting.md](references/troubleshooting.md).
 
 If the user explicitly asks about developer projects, auth configs, connected accounts, triggers, logs, orgs, or projects, load [references/composio-dev.md](references/composio-dev.md). `composio dev` is not the default end-user path.
+
+If the user needs more than one top-level command, wants to script workflows, or wants `experimental_subAgent()` inside `composio run`, load [references/power-user-examples.md](references/power-user-examples.md).
