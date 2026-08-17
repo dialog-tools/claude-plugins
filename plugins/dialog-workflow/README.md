@@ -17,7 +17,9 @@ triage, two safety hooks, and two supporting skills.
 
 ## Hooks
 
-Two safety-only `PreToolUse` hooks (guarded so they no-op if `uv`/`python3` aren't on `PATH`):
+Two safety-only `PreToolUse` hooks (guarded so they no-op if `uv`/`python3` aren't on `PATH`,
+and also no-op when the same script already exists at `~/.claude/hooks/` — so users who carry
+these hooks in their personal dotfiles don't run them twice):
 
 - **`pre_tool_use.py`** — blocks dangerous `rm -rf`-style commands and blocks writes to `.env`
   files (reading `.env` is still allowed).

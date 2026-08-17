@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "command -v uv >/dev/null 2>&1 || exit 0; uv run \"${CLAUDE_PLUGIN_ROOT}/hooks/pre_tool_use.py\"",
+            "command": "[ -f \"$HOME/.claude/hooks/pre_tool_use.py\" ] && exit 0; command -v uv >/dev/null 2>&1 || exit 0; uv run \"${CLAUDE_PLUGIN_ROOT}/hooks/pre_tool_use.py\"",
             "timeout": 10
           }
         ]
@@ -16,7 +16,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "command -v python3 >/dev/null 2>&1 || exit 0; python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/block-env.py\"",
+            "command": "[ -f \"$HOME/.claude/hooks/block-env.py\" ] && exit 0; command -v python3 >/dev/null 2>&1 || exit 0; python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/block-env.py\"",
             "timeout": 10
           }
         ]
