@@ -47,31 +47,37 @@ New files:
 | Path (under `plugins/dialog-workflow/`) | Purpose |
 |---|---|
 | `bin/chrome-devtools-mcp-shared` | Launcher (zsh). The only entry point for both clients. |
-| `.mcp.json` | Claude Code MCP definition |
-| `.codex-plugin/plugin.json` | Codex manifest: skills, hooks, and `mcpServers: "./codex-mcp.json"` |
-| `codex-mcp.json` | Codex MCP definition |
+| `.mcp.json` | MCP definition read by both Claude Code and Codex |
 | `skills/{a11y-debugging,chrome-devtools,chrome-devtools-cli,cookie-debugging,debug-optimize-lcp,memory-leak-debugging,troubleshooting}/` | Upstream skills + overlay |
 
 Repo-level: `scripts/sync-chrome-devtools-skills.mjs`, `tests/chrome-devtools-shared.test.mjs`.
 
-**Claude** (`.mcp.json`):
+**MCP definition** (`.mcp.json`, one file for both clients):
 
 ```json
-{ "mcpServers": { "chrome-devtools": { "command": "${CLAUDE_PLUGIN_ROOT}/bin/chrome-devtools-mcp-shared" } } }
+{
+  "mcpServers": {
+    "chrome-devtools": {
+      "command": "sh",
+      "args": ["-c", "exec \"${CLAUDE_PLUGIN_ROOT:-.}/bin/chrome-devtools-mcp-shared\""],
+      "cwd": "."
+    }
+  }
+}
 ```
 
-**Codex** (`codex-mcp.json`): Codex does not interpolate `${CLAUDE_PLUGIN_ROOT}` in plugin MCP
-configs (openai/codex#19582, open) and resolves relative paths from the session's working
-directory (openai/codex#22842, open). The reported workaround is `"cwd": "."`, which anchors to
-the plugin root:
+- **Claude Code** sets `CLAUDE_PLUGIN_ROOT` (interpolated, and exported to stdio servers), so
+  the path is absolute and `cwd` is irrelevant. Claude accepts the `cwd` key (checked with
+  `--mcp-config`).
+- **Codex** does not interpolate `${CLAUDE_PLUGIN_ROOT}` in plugin MCP configs
+  (openai/codex#19582, open), so the literal reaches `sh`, which expands the unset variable to
+  `.`. Codex resolves relative paths from the session's working directory
+  (openai/codex#22842, open); the reported workaround `"cwd": "."` anchors `.` to the plugin
+  root.
 
-```json
-{ "mcpServers": { "chrome-devtools": { "command": "./bin/chrome-devtools-mcp-shared", "cwd": "." } } }
-```
-
-A separate file is used because a `.mcp.json` shaped for Codex would break Claude, and vice
-versa. Adding `.codex-plugin/plugin.json` must not drop the skills, commands or hooks Codex loads
-today from the Claude manifest; it declares them explicitly.
+No `.codex-plugin/plugin.json` is added: today Codex synthesizes one for this Claude-format
+plugin and migrates `commands/` into skills (`.codex-plugin/migrated-command-skills`); a
+hand-written manifest could stop that.
 
 The launcher takes no required arguments; it owns the port and passes `--browserUrl` itself, so
 the address lives in one place.
@@ -128,7 +134,9 @@ replace the seven skill directories, then apply the overlay:
   description and add **Shared browser etiquette** (own `isolatedContext` per agent, only touch
   your own `pageId`s, no browser-wide side effects on others' pages, `close_page` when done).
 - `troubleshooting/SKILL.md`: insert **Step 0: Check the shared Chrome** before Step 1 (curl
-  9222, `chrome.log`, never "fix" by reverting to a self-launching or `--isolated` server).
+  9222, the launcher's `--check`, `~/.cache/dialog-chrome-devtools/chrome.log`, reconnect the
+  server to relaunch Chrome, never "fix" by reverting to a self-launching or `--isolated`
+  server).
 
 The script fails loudly if an anchor is missing, so an upstream rewrite can't silently drop the
 overlay. The existing `skill-links` CI check covers the imported skills.
@@ -170,14 +178,18 @@ allow-list entries to the plugin tool names; enable `dialog-workflow` at user sc
 - **Integration (local)**: with Chrome down, a cold start brings it up parented to launchd; three
   simultaneous cold starts produce one install and three working servers; two servers share the
   browser with separate `isolatedContext`s.
-- **Real clients**: `claude -p` and `codex exec` with `dialog-workflow` installed from a local
-  marketplace pointing at the branch checkout: each opens, lists and closes a tab, and sees the
-  seven skills; then again from a released install.
+- **Real clients**: `claude -p --plugin-dir plugins/dialog-workflow` on the branch: opens, lists
+  and closes a tab and sees the seven skills. Codex reads plugins only from its marketplace
+  snapshot, so it is verified right after merge (`codex plugin marketplace upgrade dialog-tools`,
+  then `codex exec`), checking the Chrome tools, the seven skills, and that the migrated command
+  skills (e.g. `ship`) still load — before teammates are told to update.
 
 ## Risks
 
-- **Codex `cwd` workaround is unofficial.** If it fails, Codex falls back to a user-level
-  `[mcp_servers.chrome-devtools]` pointing at the installed launcher path, written by `/setup`.
+- **Codex `cwd` workaround is unofficial.** If it fails: first add a `.codex-plugin/plugin.json`
+  declaring `skills`, `hooks` and `mcpServers` (if Codex then still loads the commands); otherwise
+  `/setup` writes a user-level `[mcp_servers.chrome-devtools]` pointing at the installed launcher
+  path.
 - **Plugin updates aren't automatic** for third-party marketplaces; teammates run
   `/plugin marketplace update dialog-tools` (README and `/setup` say so). The server itself stays
   current through the launcher regardless.
